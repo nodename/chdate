@@ -1,0 +1,55 @@
+#!/usr/bin/env node
+
+// chdate - print the next n (default 3) Gregorian dates on which the Chinese lunar date (month=yue, date=ri) falls
+// Usage: chdate yue ri [n]
+
+const { Solar, Lunar } = require('lunar-javascript');
+
+const toSolarString = (nian, yue, ri) => {
+    const occurrence = Lunar.fromYmd(nian, yue, ri);
+    const solarOccurrence = occurrence.getSolar();
+    return solarOccurrence.toString();
+};
+
+const precedes = (solar0, solar1) => { 
+    if (solar0.getYear() < solar1.getYear()) {
+        return true;
+    } else if (solar0.getYear() > solar1.getYear()) {
+        return false;
+    } else {
+        if (solar0.getMonth() < solar1.getMonth()) {
+            return true;
+        } else if (solar0.getMonth() > solar1.getMonth()) {
+            return false;
+        } else return (solar0.getDay() < solar1.getDay());
+    }
+};
+
+const nextOccurrences = (yue, ri, n) => {
+    if (n === undefined) {
+        n = 3;
+    }
+
+    const dateToday = new Date();
+    const solarToday = Solar.fromDate(dateToday);
+    const lunarToday = Lunar.fromDate(dateToday);
+    const jinNian = lunarToday.getYear();
+    
+    const thisYearSolarOccurrence = Lunar.fromYmd(jinNian, yue, ri).getSolar();
+    const startYear = (precedes(thisYearSolarOccurrence, solarToday)) ? jinNian + 1 : jinNian;
+    
+    const dates = [];
+    for (let i = 0; i < n; i++) {
+        dates.push(toSolarString(startYear + i, yue, ri));
+    }
+    return dates;
+};
+
+const args = process.argv.slice(2);
+const [yueStr, riStr, nStr] = args;
+
+const yue = yueStr !== undefined ? parseInt(yueStr) : undefined;
+const ri = riStr !== undefined ? parseInt(riStr) : undefined;
+const n = nStr !== undefined ? parseInt(nStr) : undefined;
+ 
+console.log(nextOccurrences(yue, ri, n));

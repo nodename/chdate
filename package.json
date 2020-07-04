@@ -1,0 +1,8 @@
+{
+    "name": "chdate",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+        "lunar-javascript": "1.0.9"
+    }
+}
